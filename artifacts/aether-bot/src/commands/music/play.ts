@@ -1,5 +1,8 @@
 import type { Command } from "../types.ts";
 import { EmbedBuilder } from "discord.js";
+import { spawn } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { errorEmbed } from "../../embeds/builder.ts";
 import { Colors } from "../../config/colors.ts";
 import { e } from "../../config/emojis.ts";
@@ -7,6 +10,40 @@ import { detectSource, trunc } from "../../utils/format.ts";
 import { logger } from "../../utils/logger.ts";
 
 const isUrl = (s: string): boolean => /^https?:\/\//i.test(s);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const YTDLP_BIN = path.resolve(__dirname, "../../../bin/yt-dlp");
+
+// Resolve a free-text search to a real YouTube URL via the yt-dlp binary directly.
+// We do this so DisTube never falls back to SoundCloud's searchSongs (which is
+// rate-limited from cloud IPs) when the user types a plain search query.
+const searchYouTube = (query: string): Promise<string | null> =>
+  new Promise((resolve) => {
+    const child = spawn(
+      YTDLP_BIN,
+      [
+        `ytsearch1:${query}`,
+        "--get-id",
+        "--no-playlist",
+        "--no-warnings",
+        "--default-search",
+        "ytsearch",
+      ],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    let out = "";
+    child.stdout.on("data", (d) => (out += d.toString()));
+    child.on("error", () => resolve(null));
+    child.on("close", () => {
+      const id = out.trim().split("\n").filter(Boolean)[0];
+      resolve(id ? `https://www.youtube.com/watch?v=${id}` : null);
+    });
+    // Hard timeout so we never hang the play command
+    setTimeout(() => {
+      child.kill("SIGKILL");
+      resolve(null);
+    }, 15_000);
+  });
 
 const cmd: Command = {
   name: "play",
@@ -58,10 +95,29 @@ const cmd: Command = {
       ],
     });
 
-    // For non-URL queries, hand the search to yt-dlp via its native ytsearch: prefix.
-    // YtDlpPlugin.validate() returns true for any string, but ytsearch:N:query is what
-    // the underlying yt-dlp binary actually understands as "search YouTube".
-    const target = url ? query : `ytsearch1:${query}`;
+    // For URLs we pass straight through. For free text, resolve the search
+    // ourselves with the yt-dlp binary so DisTube cannot fall back to
+    // SoundCloud's rate-limited search path.
+    let target = query;
+    if (!url) {
+      const resolved = await searchYouTube(query);
+      if (!resolved) {
+        await searching.edit({
+          embeds: [
+            errorEmbed(
+              [
+                `**No results for that search.**`,
+                `> \`${trunc(query, 200)}\``,
+                "",
+                `Try a different search term or paste a direct URL.`,
+              ].join("\n"),
+            ),
+          ],
+        });
+        return;
+      }
+      target = resolved;
+    }
 
     try {
       await distube.play(voice, target, {
