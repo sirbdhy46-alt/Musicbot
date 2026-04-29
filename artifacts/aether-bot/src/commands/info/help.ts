@@ -66,45 +66,44 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
   },
 };
 
-const DIVIDER = "▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰";
+const SPACE = "\u2003"; // em space — wider, gives breathing room
+const GAP = "\n\u200b\n"; // visible vertical gap between sections
 
 const buildHomeEmbed = (totalCommands: number): EmbedBuilder => {
   const p = config.prefix;
   const moduleLines = Object.entries(CATEGORY_META).map(
-    ([_, m]) => `${e(m.emojiName)}  **${m.label.toUpperCase()}**  ·  ${m.blurb}`,
+    ([_, m]) => `${e(m.emojiName)}${SPACE}**${m.label.toUpperCase()}**${SPACE}·${SPACE}${m.blurb}`,
   );
 
   return new EmbedBuilder()
     .setColor(Colors.primary)
     .setAuthor({ name: "AETHER  //  COMMAND CENTER" })
-    .setTitle(`${e("aether_logo")}  **A E T H E R**`)
     .setDescription(
       [
-        `> ${e("fire")}  **Dark.  Loud.  In your veins.**`,
-        `> ${e("disc_glow")}  Premium-grade music engine for your server.`,
+        `# ${e("aether_logo")}${SPACE}**A${SPACE}E${SPACE}T${SPACE}H${SPACE}E${SPACE}R**`,
+        `### ${e("fire")}${SPACE}**DARK${SPACE}·${SPACE}LOUD${SPACE}·${SPACE}IN${SPACE}YOUR${SPACE}VEINS**`,
         "",
-        `\`\`\`${DIVIDER}\`\`\``,
-        `${e("home")}  **Prefix**  ·  \`${p}\``,
-        `${e("queue")}  **Commands**  ·  \`${totalCommands}\` loaded`,
-        `${e("headset")}  **Sources**  ·  ${e("youtube")} \`YouTube\`  ${e("soundcloud")} \`SoundCloud\`  ${e("spotify")} \`Spotify\``,
-        `\`\`\`${DIVIDER}\`\`\``,
+        `> ${e("disc_glow")}${SPACE}**Premium-grade music engine for your server.**`,
+        GAP,
+        `## ${e("home")}${SPACE}**THE BASICS**`,
+        "",
+        `${e("sparkle")}${SPACE}**Prefix**${SPACE}·${SPACE}\`${p}\``,
+        `${e("queue")}${SPACE}**Commands**${SPACE}·${SPACE}\`${totalCommands}\`${SPACE}loaded`,
+        `${e("headset")}${SPACE}**Sources**${SPACE}·${SPACE}${e("youtube")} \`YouTube\`${SPACE}${e("soundcloud")} \`SoundCloud\`${SPACE}${e("spotify")} \`Spotify\``,
+        GAP,
+        `## ${e("sparkle")}${SPACE}**MODULES**`,
+        "",
+        moduleLines.join("\n"),
+        GAP,
+        `## ${e("dj")}${SPACE}**QUICK START**`,
+        "",
+        `\`${p}play <song or url>\`${SPACE}—${SPACE}**Drop a track instantly**`,
+        `\`${p}help <command>\`${SPACE}—${SPACE}**Deep-dive any command**`,
+        `\`${p}nowplaying\`${SPACE}—${SPACE}**See what's spinning**`,
+        "",
+        `-# AETHER${SPACE}·${SPACE}dark, loud, in your veins`,
       ].join("\n"),
-    )
-    .addFields(
-      {
-        name: `${e("sparkle")}  **MODULES**`,
-        value: moduleLines.join("\n"),
-      },
-      {
-        name: `${e("dj")}  **QUICK START**`,
-        value: [
-          `\`${p}play <song or url>\`  —  Drop a track instantly`,
-          `\`${p}help <command>\`  —  Deep-dive any command`,
-          `\`${p}nowplaying\`  —  See what's spinning`,
-        ].join("\n"),
-      },
-    )
-    .setFooter({ text: "AETHER  ·  dark, loud, in your veins" });
+    );
 };
 
 const buildCategoryEmbed = (cat: string): EmbedBuilder => {
@@ -114,42 +113,30 @@ const buildCategoryEmbed = (cat: string): EmbedBuilder => {
     .filter((c) => c.category === cat && !c.ownerOnly)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const embed = new EmbedBuilder()
+  const header = [
+    `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${(meta?.label.toUpperCase() ?? cat.toUpperCase()).split("").join(SPACE)}**`,
+    `### ${e(meta?.accent ?? "fire")}${SPACE}**${(meta?.tagline ?? "").toUpperCase()}**`,
+    "",
+    `> ${e("queue")}${SPACE}**\`${list.length}\`** commands available`,
+    `> ${e("search")}${SPACE}Tip${SPACE}·${SPACE}\`${p}help <command>\` for full usage`,
+    GAP,
+    `## ${e("disc_glow")}${SPACE}**COMMANDS**`,
+    "",
+  ].join("\n");
+
+  const body = list.length
+    ? list
+        .map(
+          (c) =>
+            `${e(meta?.emojiName ?? "music_note")}${SPACE}\`${p}${c.name}\`${SPACE}—${SPACE}**${c.description}**`,
+        )
+        .join("\n")
+    : `${e("warning")}${SPACE}*No commands in this module yet.*`;
+
+  return new EmbedBuilder()
     .setColor(meta?.color ?? Colors.primary)
     .setAuthor({ name: `AETHER  //  ${meta?.label.toUpperCase() ?? cat.toUpperCase()} MODULE` })
-    .setTitle(`${e(meta?.emojiName ?? "music_note")}  **${meta?.label.toUpperCase() ?? cat.toUpperCase()}**`)
-    .setDescription(
-      [
-        `> ${e(meta?.accent ?? "fire")}  *${meta?.tagline ?? ""}*`,
-        "",
-        `\`\`\`${DIVIDER}\`\`\``,
-        `${e("queue")}  **\`${list.length}\`** commands available`,
-        `${e("search")}  Tip  ·  \`${p}help <command>\` for full usage`,
-        `\`\`\`${DIVIDER}\`\`\``,
-      ].join("\n"),
-    )
-    .setFooter({ text: "AETHER  ·  dark, loud, in your veins" });
-
-  const chunkSize = 8;
-  for (let i = 0; i < list.length; i += chunkSize) {
-    const chunk = list.slice(i, i + chunkSize);
-    embed.addFields({
-      name: i === 0 ? `${e("disc_glow")}  **COMMANDS**` : "\u200b",
-      value: chunk
-        .map((c) => `\`${p}${c.name.padEnd(10, " ")}\`  ·  ${c.description}`)
-        .join("\n"),
-      inline: false,
-    });
-  }
-
-  if (list.length === 0) {
-    embed.addFields({
-      name: `${e("warning")}  **EMPTY**`,
-      value: "_No commands in this module yet._",
-    });
-  }
-
-  return embed;
+    .setDescription(`${header}${body}\n\n-# AETHER${SPACE}·${SPACE}dark, loud, in your veins`);
 };
 
 const attachEmoji = (btn: ButtonBuilder, name: EmojiName): ButtonBuilder => {
@@ -228,37 +215,32 @@ const cmd: Command = {
         return message.reply(`${e("cross")}  No command called \`${lookup}\`.`);
       }
       const meta = CATEGORY_META[found.category];
+      const aliases = found.aliases?.length
+        ? found.aliases.map((a) => `\`${a}\``).join(`${SPACE}`)
+        : "`none`";
       const embed = new EmbedBuilder()
         .setColor(meta?.color ?? Colors.info)
         .setAuthor({ name: `AETHER  //  COMMAND DETAIL` })
-        .setTitle(`${e(meta?.emojiName ?? "music_note")}  \`${p}${found.name}\``)
         .setDescription(
           [
-            `> ${e("fire")}  **${found.description}**`,
+            `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${found.name.toUpperCase().split("").join(SPACE)}**`,
+            `### ${e("fire")}${SPACE}**${found.description.toUpperCase()}**`,
+            GAP,
+            `## ${e("disc_glow")}${SPACE}**USAGE**`,
             "",
-            `\`\`\`${DIVIDER}\`\`\``,
+            `\`${found.usage ?? p + found.name}\``,
+            GAP,
+            `## ${e("sparkle")}${SPACE}**ALIASES**`,
+            "",
+            aliases,
+            GAP,
+            `## ${e("crown")}${SPACE}**MODULE**`,
+            "",
+            `**${(meta?.label ?? found.category).toUpperCase()}**`,
+            "",
+            `-# AETHER${SPACE}·${SPACE}dark, loud, in your veins`,
           ].join("\n"),
-        )
-        .addFields(
-          {
-            name: `${e("disc_glow")}  **USAGE**`,
-            value: `\`${found.usage ?? p + found.name}\``,
-            inline: true,
-          },
-          {
-            name: `${e("sparkle")}  **ALIASES**`,
-            value: found.aliases?.length
-              ? found.aliases.map((a) => `\`${a}\``).join("  ")
-              : "`none`",
-            inline: true,
-          },
-          {
-            name: `${e("crown")}  **MODULE**`,
-            value: `**${meta?.label ?? found.category}**`,
-            inline: true,
-          },
-        )
-        .setFooter({ text: "AETHER  ·  dark, loud, in your veins" });
+        );
       return message.reply({ embeds: [embed] });
     }
 
