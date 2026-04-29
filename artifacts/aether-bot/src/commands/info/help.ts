@@ -72,7 +72,7 @@ const GAP = "\n\u200b\n"; // visible vertical gap between sections
 const buildHomeEmbed = (totalCommands: number): EmbedBuilder => {
   const p = config.prefix;
   const moduleLines = Object.entries(CATEGORY_META).map(
-    ([_, m]) => `${e(m.emojiName)}${SPACE}**${m.label.toUpperCase()}**${SPACE}·${SPACE}${m.blurb}`,
+    ([_, m]) => `${e(m.emojiName)}${SPACE}**${m.label}**${SPACE}·${SPACE}${m.blurb}`,
   );
 
   return new EmbedBuilder()
@@ -80,22 +80,22 @@ const buildHomeEmbed = (totalCommands: number): EmbedBuilder => {
     .setAuthor({ name: "AETHER  //  COMMAND CENTER" })
     .setDescription(
       [
-        `# ${e("aether_logo")}${SPACE}**A${SPACE}E${SPACE}T${SPACE}H${SPACE}E${SPACE}R**`,
-        `### ${e("fire")}${SPACE}**DARK${SPACE}·${SPACE}LOUD${SPACE}·${SPACE}IN${SPACE}YOUR${SPACE}VEINS**`,
+        `# ${e("aether_logo")}${SPACE}**Aether**`,
+        `### ${e("fire")}${SPACE}**Dark${SPACE}·${SPACE}Loud${SPACE}·${SPACE}In Your Veins**`,
         "",
         `> ${e("disc_glow")}${SPACE}**Premium-grade music engine for your server.**`,
         GAP,
-        `## ${e("home")}${SPACE}**THE BASICS**`,
+        `## ${e("home")}${SPACE}**The Basics**`,
         "",
         `${e("sparkle")}${SPACE}**Prefix**${SPACE}·${SPACE}\`${p}\``,
         `${e("queue")}${SPACE}**Commands**${SPACE}·${SPACE}\`${totalCommands}\`${SPACE}loaded`,
         `${e("headset")}${SPACE}**Sources**${SPACE}·${SPACE}${e("youtube")} \`YouTube\`${SPACE}${e("soundcloud")} \`SoundCloud\`${SPACE}${e("spotify")} \`Spotify\``,
         GAP,
-        `## ${e("sparkle")}${SPACE}**MODULES**`,
+        `## ${e("sparkle")}${SPACE}**Modules**`,
         "",
         moduleLines.join("\n"),
         GAP,
-        `## ${e("dj")}${SPACE}**QUICK START**`,
+        `## ${e("dj")}${SPACE}**Quick Start**`,
         "",
         `\`${p}play <song or url>\`${SPACE}—${SPACE}**Drop a track instantly**`,
         `\`${p}help <command>\`${SPACE}—${SPACE}**Deep-dive any command**`,
@@ -114,13 +114,13 @@ const buildCategoryEmbed = (cat: string): EmbedBuilder => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const header = [
-    `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${(meta?.label.toUpperCase() ?? cat.toUpperCase()).split("").join(SPACE)}**`,
-    `### ${e(meta?.accent ?? "fire")}${SPACE}**${(meta?.tagline ?? "").toUpperCase()}**`,
+    `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${meta?.label ?? cat}**`,
+    `### ${e(meta?.accent ?? "fire")}${SPACE}**${meta?.tagline ?? ""}**`,
     "",
     `> ${e("queue")}${SPACE}**\`${list.length}\`** commands available`,
     `> ${e("search")}${SPACE}Tip${SPACE}·${SPACE}\`${p}help <command>\` for full usage`,
     GAP,
-    `## ${e("disc_glow")}${SPACE}**COMMANDS**`,
+    `## ${e("disc_glow")}${SPACE}**Commands**`,
     "",
   ].join("\n");
 
@@ -223,22 +223,22 @@ const cmd: Command = {
         .setAuthor({ name: `AETHER  //  COMMAND DETAIL` })
         .setDescription(
           [
-            `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${found.name.toUpperCase().split("").join(SPACE)}**`,
-            `### ${e("fire")}${SPACE}**${found.description.toUpperCase()}**`,
+            `# ${e(meta?.emojiName ?? "music_note")}${SPACE}**${found.name}**`,
+            `### ${e("fire")}${SPACE}**${found.description}**`,
             GAP,
-            `## ${e("disc_glow")}${SPACE}**USAGE**`,
+            `## ${e("disc_glow")}${SPACE}**Usage**`,
             "",
             `\`${found.usage ?? p + found.name}\``,
             GAP,
-            `## ${e("sparkle")}${SPACE}**ALIASES**`,
+            `## ${e("sparkle")}${SPACE}**Aliases**`,
             "",
             aliases,
             GAP,
-            `## ${e("crown")}${SPACE}**MODULE**`,
+            `## ${e("crown")}${SPACE}**Module**`,
             "",
-            `**${(meta?.label ?? found.category).toUpperCase()}**`,
+            `**${meta?.label ?? found.category}**`,
             "",
-            `-# AETHER${SPACE}·${SPACE}dark, loud, in your veins`,
+            `-# Aether${SPACE}·${SPACE}dark, loud, in your veins`,
           ].join("\n"),
         );
       return message.reply({ embeds: [embed] });
