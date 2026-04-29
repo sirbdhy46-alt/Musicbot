@@ -29,7 +29,7 @@ See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and pa
 
 ## Aether Discord Music Bot
 
-Located at `artifacts/aether-bot/`. Long-running console process (no port), runs via the `Aether Bot` workflow.
+Located at `artifacts/aether-bot/`. Long-running console process (no port), runs via the `Aether Bot` workflow. Requires the `DISCORD_BOT_TOKEN` secret.
 
 ### Stack
 - discord.js v14, DisTube v5
