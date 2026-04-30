@@ -29,6 +29,7 @@ const cmd: Command = {
       adapterCreator: message.guild.voiceAdapterCreator,
       selfDeaf: true,
       selfMute: false,
+      debug: true,
     });
 
     for (const status of Object.values(VoiceConnectionStatus)) {
