@@ -1,10 +1,10 @@
 providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["nodejs_24", "pnpm-9_x", "ffmpeg", "python3", "curl"]
+nixPkgs = ["...", "ffmpeg", "python3", "curl"]
 
 [phases.install]
-cmds = ["pnpm install --frozen-lockfile"]
+cmds = ["npm install -g pnpm@9", "pnpm install --frozen-lockfile"]
 
 [phases.build]
 cmds = [
