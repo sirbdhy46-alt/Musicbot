@@ -1,0 +1,17 @@
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_24", "pnpm-9_x", "ffmpeg", "python3", "curl"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "mkdir -p artifacts/aether-bot/bin",
+  "curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o artifacts/aether-bot/bin/yt-dlp",
+  "chmod +x artifacts/aether-bot/bin/yt-dlp"
+]
+
+[start]
+cmd = "pnpm --filter @workspace/aether-bot start"
