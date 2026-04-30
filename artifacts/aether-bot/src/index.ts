@@ -9,7 +9,6 @@ process.env.YTDLP_FILENAME = "yt-dlp";
 process.env.YTDLP_DISABLE_DOWNLOAD = "1";
 
 import { Client, GatewayIntentBits, Partials } from "discord.js";
-import { getVoiceConnections, VoiceConnectionStatus } from "@discordjs/voice";
 import { config } from "./config/index.ts";
 import { createDistube } from "./music/distube.ts";
 import { loadCommands } from "./commands/index.ts";
@@ -32,30 +31,6 @@ const main = async (): Promise<void> => {
 
   const distube = createDistube(client);
   wireDistubeEvents(distube);
-
-  // Voice connection diagnostics — surfaces handshake failures clearly so we can see
-  // exactly where the UDP/encryption negotiation breaks down.
-  const wireVoiceDiagnostics = (): void => {
-    const seen = new WeakSet<object>();
-    setInterval(() => {
-      for (const conn of getVoiceConnections().values()) {
-        if (seen.has(conn)) continue;
-        seen.add(conn);
-        const gid = conn.joinConfig.guildId;
-        logger.info(`VOICE [${gid}] connection created (state=${conn.state.status})`);
-        for (const status of Object.values(VoiceConnectionStatus)) {
-          conn.on(status, (oldS, newS) => {
-            logger.info(
-              `VOICE [${gid}] -> ${status} (from=${oldS?.status} to=${newS?.status})`,
-            );
-          });
-        }
-        conn.on("error", (err) => logger.error(`VOICE [${gid}] error`, err));
-        conn.on("debug", (msg) => logger.info(`VOICE [${gid}] debug: ${msg}`));
-      }
-    }, 500);
-  };
-  wireVoiceDiagnostics();
 
   await loadCommands();
 
