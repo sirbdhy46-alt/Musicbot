@@ -4,7 +4,7 @@ providers = ["node"]
 nixPkgs = ["...", "ffmpeg", "python3", "curl"]
 
 [phases.install]
-cmds = ["npm install -g pnpm@9", "pnpm install --no-frozen-lockfile"]
+cmds = ["npm install -g pnpm@10", "pnpm install --no-frozen-lockfile"]
 
 [phases.build]
 cmds = [

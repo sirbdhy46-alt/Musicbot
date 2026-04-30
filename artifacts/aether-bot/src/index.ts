@@ -15,7 +15,11 @@ import { loadCommands } from "./commands/index.ts";
 import { handleReady } from "./events/ready.ts";
 import { handleMessage } from "./events/messageCreate.ts";
 import { wireDistubeEvents } from "./events/distubeEvents.ts";
+import { registerSecurity } from "./events/security.ts";
+import { registerWelcome } from "./events/welcome.ts";
+import { registerAfk } from "./events/afk.ts";
 import { logger } from "./utils/logger.ts";
+import "./services/db.ts";
 
 const main = async (): Promise<void> => {
   const client = new Client({
@@ -25,6 +29,7 @@ const main = async (): Promise<void> => {
       GatewayIntentBits.MessageContent,
       GatewayIntentBits.GuildVoiceStates,
       GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildModeration,
     ],
     partials: [Partials.Channel, Partials.Message],
   });
@@ -33,6 +38,10 @@ const main = async (): Promise<void> => {
   wireDistubeEvents(distube);
 
   await loadCommands();
+
+  registerSecurity(client);
+  registerWelcome(client);
+  registerAfk(client);
 
   client.once("clientReady", () => handleReady(client));
   client.on("messageCreate", (msg) => {

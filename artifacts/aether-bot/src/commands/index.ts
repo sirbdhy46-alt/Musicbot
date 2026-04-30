@@ -9,7 +9,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const commands = new Map<string, Command>();
 export const aliasIndex = new Map<string, string>();
 
-const SUB_DIRS = ["music", "filter", "info", "admin", "fun"] as const;
+const SUB_DIRS = [
+  "music",
+  "filter",
+  "info",
+  "admin",
+  "fun",
+  "economy",
+  "mod",
+  "security",
+  "util",
+] as const;
 
 export const loadCommands = async (): Promise<void> => {
   for (const dir of SUB_DIRS) {

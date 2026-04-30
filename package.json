@@ -12,7 +12,7 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.26.1",
   "devDependencies": {
     "prettier": "^3.8.1",
     "typescript": "~5.9.2"

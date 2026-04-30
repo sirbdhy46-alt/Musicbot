@@ -64,6 +64,38 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
     color: Colors.gold,
     accent: "lock",
   },
+  economy: {
+    label: "Economy",
+    emojiName: "crown",
+    blurb: "Coins, daily, work, shop, leaderboard.",
+    tagline: "Stack coins. Drip in the shop. Run the leaderboard.",
+    color: Colors.gold,
+    accent: "sparkle",
+  },
+  mod: {
+    label: "Mod",
+    emojiName: "lock",
+    blurb: "Ban, kick, mute, warn, purge, lock.",
+    tagline: "Server moderation — handled with style.",
+    color: Colors.danger,
+    accent: "warning",
+  },
+  security: {
+    label: "Security",
+    emojiName: "lock",
+    blurb: "Anti-raid, anti-nuke, auto-mod.",
+    tagline: "Round-the-clock protection for your server.",
+    color: Colors.danger,
+    accent: "lock",
+  },
+  util: {
+    label: "Util",
+    emojiName: "sparkle",
+    blurb: "Setup, snipe, AFK, server tools.",
+    tagline: "Utility belt — the small stuff that matters.",
+    color: Colors.info,
+    accent: "disc_glow",
+  },
 };
 
 const SPACE = "\u2003"; // em space — wider, gives breathing room
@@ -149,17 +181,20 @@ const buildComponents = (
   inviteUrl: string,
   current: string,
 ): ActionRowBuilder<ButtonBuilder>[] => {
-  // Row 1 — Module buttons (5 max). Active module = Primary, others = Secondary.
-  const moduleRow = new ActionRowBuilder<ButtonBuilder>();
-  for (const [key, m] of Object.entries(CATEGORY_META)) {
+  // Row 1 + 2 — Module buttons (5 per row max). Active module = Primary, others = Secondary.
+  const allEntries = Object.entries(CATEGORY_META);
+  const moduleRow1 = new ActionRowBuilder<ButtonBuilder>();
+  const moduleRow2 = new ActionRowBuilder<ButtonBuilder>();
+  allEntries.forEach(([key, m], idx) => {
     const btn = new ButtonBuilder()
       .setCustomId(`aether_help_cat_${key}`)
       .setLabel(m.label.toUpperCase())
       .setStyle(current === key ? ButtonStyle.Primary : ButtonStyle.Secondary)
       .setDisabled(current === key);
     attachEmoji(btn, m.emojiName);
-    moduleRow.addComponents(btn);
-  }
+    if (idx < 5) moduleRow1.addComponents(btn);
+    else moduleRow2.addComponents(btn);
+  });
 
   // Row 2 — Navigation (Home / Refresh / Invite / Close).
   const homeBtn = new ButtonBuilder()
@@ -194,7 +229,10 @@ const buildComponents = (
     closeBtn,
   );
 
-  return [moduleRow, navRow];
+  const rows: ActionRowBuilder<ButtonBuilder>[] = [moduleRow1];
+  if (moduleRow2.components.length > 0) rows.push(moduleRow2);
+  rows.push(navRow);
+  return rows;
 };
 
 const cmd: Command = {

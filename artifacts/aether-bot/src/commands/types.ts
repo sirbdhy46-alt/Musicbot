@@ -12,7 +12,16 @@ export interface Command {
   name: string;
   aliases?: string[];
   description: string;
-  category: "music" | "filter" | "info" | "admin" | "fun";
+  category:
+    | "music"
+    | "filter"
+    | "info"
+    | "admin"
+    | "fun"
+    | "economy"
+    | "mod"
+    | "security"
+    | "util";
   usage?: string;
   voiceOnly?: boolean;
   queueOnly?: boolean;
